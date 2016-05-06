@@ -1,0 +1,10 @@
+name: TownyFly
+version: 0.01
+main: thevoxstudios.vtownyfly.TownyFly
+author: TheMasteredPanda
+depend: [Towny, Essentials]
+commands:
+  tfly:
+    description: Allows player to fly in their own town
+    permission: vox.towny.fly
+    default: false
