@@ -11,7 +11,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.earth2me.essentials.IEssentials;
@@ -31,7 +33,6 @@ public class TownyFly extends JavaPlugin implements Listener {
 	public File configf;
 	public FileConfiguration config;
 	IEssentials ess;
-	TownBlock tb;
 	Towny towny;
 	Resident res;
 	ArrayList<String> tflyp = new ArrayList<String>();
@@ -43,7 +44,7 @@ public class TownyFly extends JavaPlugin implements Listener {
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		Bukkit.getLogger().info("[TownyFly] Is now enabled!");
 	}
-	public void onDisbale() {
+	public void onDisable() {
 		Bukkit.getLogger().info("[TownyFly] Is now disabled......bye!");
 	}
 	
@@ -60,7 +61,7 @@ public class TownyFly extends JavaPlugin implements Listener {
 			config.set("Messages.NotInATown", "&cYou must be in your joined Town in order to use this command!");
 			config.set("Messages.NotInJoinedTown", "&cYou are not in your joined Town! If you want to use this command you must be in the town you have joined.");
 			config.set("Messages.NoPermission", "&cYou do not have permission to execute this command! &cWant to be able to execute this command? Become a registered &8[&aMember&]&a @ &dwww.thevoxmc.net &aand gain perks like this one!");
-		    config.set("Messages.OutOfTownBoundaries", "Teleported to the ground and disabled your TownyFly mode. You have just flown outside of the town boundaries! You can only fly inside of the town with /tfly, nub ;p! ");
+		    config.set("Messages.OutOfTownBoundaries", "&aTeleported to the ground and changed your Towny Fly mode to off. You have just flown outside of the town boundaries! You can only fly inside of the town with /tfly, nub ;p! ");
 			save = true;
 		}
 		if (save) {
@@ -75,22 +76,47 @@ public class TownyFly extends JavaPlugin implements Listener {
 		}	
 	}
 	
-	public void onPlotLeave(PlayerChangePlotEvent e) {
+	@EventHandler
+	public void onQuit(PlayerQuitEvent e) {
 		Player p = e.getPlayer();
-		try {
-			tb = e.getTo().getTownBlock(); 
-			Town townTo = e.getTo().getTownBlock().getTown();
-			if (res.getTown() == townTo) {
-				p.sendMessage(ChatColor.translateAlternateColorCodes('&', "Messages.OutOfTownBoundaries"));
-				p.setFlying(false);
-				} else {}
-		} catch (Exception tbe) {
-			tbe.printStackTrace();
+		if (tflyp.contains(p.getName())) {
+			p.setFlying(false);
+			tflyp.remove(p.getName());
 		}
 	}
-	
-	
-	
+	@EventHandler
+	public void onPlotLeave(PlayerChangePlotEvent e) throws NotRegisteredException {
+		System.out.println("onPlotLeave Event Fires");
+		Player p = e.getPlayer();
+		TownBlock tb = e.getTo().getTownBlock();
+		if (tflyp.contains(p.getName())) {
+	        try {
+				res = TownyUniverse.getDataSource().getResident(p.getName());
+			} catch (NotRegisteredException e1) {
+				e1.printStackTrace();
+			}
+			try {
+				@SuppressWarnings("unused")
+				tb = e.getTo();http://prntscr.com/b1brkn
+			} catch (NotRegisteredException tbe) {
+				System.out.println("Resident has entered the wilderness.");
+				p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
+				p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries")));
+				p.setFlying(false);
+				tflyp.remove(p.getName());
+				return;
+			}			
+			Town townTo = tb.getTown();
+			if (res.getTown() != townTo) {
+					System.out.println("Resident has left their town.");
+				p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
+				p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries")));
+				p.setFlying(false);
+				tflyp.remove(p.getName());
+				return;
+			} 
+		}
+	}
 	public boolean onCommand(CommandSender s, Command cmd, String label, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("tfly"))
 			if (s instanceof Player) {
