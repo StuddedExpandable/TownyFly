@@ -88,7 +88,7 @@ public class TownyFly extends JavaPlugin implements Listener {
 	public void onPlotLeave(PlayerChangePlotEvent e) throws NotRegisteredException {
 		System.out.println("onPlotLeave Event Fires");
 		Player p = e.getPlayer();
-		TownBlock tb = e.getTo().getTownBlock();
+		TownBlock tb;// = e.getTo().getTownBlock();
 		if (tflyp.contains(p.getName())) {
 	        try {
 				res = TownyUniverse.getDataSource().getResident(p.getName());
@@ -97,7 +97,7 @@ public class TownyFly extends JavaPlugin implements Listener {
 			}
 			try {
 				@SuppressWarnings("unused")
-				tb = e.getTo();http://prntscr.com/b1brkn
+				/*Error here*/ tb = e.getTo().getTownBlock();
 			} catch (NotRegisteredException tbe) {
 				System.out.println("Resident has entered the wilderness.");
 				p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
