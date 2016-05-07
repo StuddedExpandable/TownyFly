@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -25,7 +26,6 @@ import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
 
-import net.md_5.bungee.api.ChatColor;
 
 public class TownyFly extends JavaPlugin implements Listener {
 	
@@ -88,7 +88,7 @@ public class TownyFly extends JavaPlugin implements Listener {
 	public void onPlotLeave(PlayerChangePlotEvent e) throws NotRegisteredException {
 		System.out.println("onPlotLeave Event Fires");
 		Player p = e.getPlayer();
-		TownBlock tb;// = e.getTo().getTownBlock();
+
 		if (tflyp.contains(p.getName())) {
 	        try {
 				res = TownyUniverse.getDataSource().getResident(p.getName());
@@ -96,8 +96,18 @@ public class TownyFly extends JavaPlugin implements Listener {
 				e1.printStackTrace();
 			}
 			try {
-				@SuppressWarnings("unused")
-				/*Error here*/ tb = e.getTo().getTownBlock();
+				TownBlock tb = e.getTo().getTownBlock();
+				if (tb != null) {
+					Town townTo = tb.getTown();
+					if (res.getTown() != townTo) {
+							System.out.println("Resident has left their town.");
+						p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
+						p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries")));
+						p.setFlying(false);
+						tflyp.remove(p.getName());
+						return;
+					}
+				}
 			} catch (NotRegisteredException tbe) {
 				System.out.println("Resident has entered the wilderness.");
 				p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
@@ -106,15 +116,7 @@ public class TownyFly extends JavaPlugin implements Listener {
 				tflyp.remove(p.getName());
 				return;
 			}			
-			Town townTo = tb.getTown();
-			if (res.getTown() != townTo) {
-					System.out.println("Resident has left their town.");
-				p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
-				p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries")));
-				p.setFlying(false);
-				tflyp.remove(p.getName());
-				return;
-			} 
+			
 		}
 	}
 	public boolean onCommand(CommandSender s, Command cmd, String label, String[] args) {
