@@ -30,13 +30,14 @@ import com.palmergames.bukkit.towny.object.TownyUniverse;
 public class TownyFly extends JavaPlugin implements Listener {
 	
 	
-	public File configf;
-	public FileConfiguration config;
-	IEssentials ess;
-	Towny towny;
-	Resident res;
+	public File configf = null;
+	public FileConfiguration config = null;
+	IEssentials ess = null;
+	Towny towny = null;
+	Resident res = null;
 	ArrayList<String> tflyp = new ArrayList<String>();
 	
+	@Override
 	public void onEnable() {
 		createConfig();
 		towny = (Towny)getServer().getPluginManager().getPlugin("Towny");
@@ -44,6 +45,8 @@ public class TownyFly extends JavaPlugin implements Listener {
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		Bukkit.getLogger().info("[TownyFly] Is now enabled!");
 	}
+	
+	@Override
 	public void onDisable() {
 		Bukkit.getLogger().info("[TownyFly] Is now disabled......bye!");
 	}
@@ -86,7 +89,6 @@ public class TownyFly extends JavaPlugin implements Listener {
 	}
 	@EventHandler
 	public void onPlotLeave(PlayerChangePlotEvent e) throws NotRegisteredException {
-		System.out.println("onPlotLeave Event Fires");
 		Player p = e.getPlayer();
 
 		if (tflyp.contains(p.getName())) {
@@ -100,7 +102,7 @@ public class TownyFly extends JavaPlugin implements Listener {
 				if (tb != null) {
 					Town townTo = tb.getTown();
 					if (res.getTown() != townTo) {
-							System.out.println("Resident has left their town.");
+							System.out.println("Resident "+ p + " has left their town.");
 						p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
 						p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries")));
 						p.setFlying(false);

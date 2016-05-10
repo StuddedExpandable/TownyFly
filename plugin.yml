@@ -1,5 +1,5 @@
 name: TownyFly
-version: 0.01
+version: 0.16
 main: thevoxstudios.vtownyfly.TownyFly
 author: TheMasteredPanda
 depend: [Towny, Essentials]
