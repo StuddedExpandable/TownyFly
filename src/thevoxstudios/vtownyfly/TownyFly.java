@@ -107,6 +107,7 @@ public class TownyFly extends JavaPlugin implements Listener {
 						p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
 						p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
 						p.setFlying(false);
+						p.setAllowFlight(false);
 						tflyp.remove(p.getName());
 						return;
 					}
@@ -116,6 +117,7 @@ public class TownyFly extends JavaPlugin implements Listener {
 				p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
 				p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
 				p.setFlying(false);
+				p.setAllowFlight(false);
 				tflyp.remove(p.getName());
 				return;
 			}			
@@ -144,7 +146,6 @@ public class TownyFly extends JavaPlugin implements Listener {
 									if (p.getAllowFlight()) {
 										tflyp.remove(p.getName());
 										p.setFlying(false);
-										p.setAllowFlight(false);
 										p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.FlyDisabled").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
 									} else {
 										tflyp.add(p.getName());
