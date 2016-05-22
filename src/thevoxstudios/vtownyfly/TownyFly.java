@@ -83,6 +83,7 @@ public class TownyFly extends JavaPlugin implements Listener {
 	public void onQuit(PlayerQuitEvent e) {
 		Player p = e.getPlayer();
 		if (tflyp.contains(p.getName())) {
+			p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
 			p.setFlying(false);
 			tflyp.remove(p.getName());
 		}
@@ -104,7 +105,7 @@ public class TownyFly extends JavaPlugin implements Listener {
 					if (res.getTown() != townTo) {
 							System.out.println("Resident "+ p + " has left their town.");
 						p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
-						p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries")));
+						p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
 						p.setFlying(false);
 						tflyp.remove(p.getName());
 						return;
@@ -113,7 +114,7 @@ public class TownyFly extends JavaPlugin implements Listener {
 			} catch (NotRegisteredException tbe) {
 				System.out.println("Resident has entered the wilderness.");
 				p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
-				p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries")));
+				p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
 				p.setFlying(false);
 				tflyp.remove(p.getName());
 				return;
@@ -121,6 +122,7 @@ public class TownyFly extends JavaPlugin implements Listener {
 			
 		}
 	}
+	
 	public boolean onCommand(CommandSender s, Command cmd, String label, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("tfly"))
 			if (s instanceof Player) {
@@ -135,18 +137,19 @@ public class TownyFly extends JavaPlugin implements Listener {
 				}
 					if (res.hasTown()) {
 						if (TownyUniverse.isWilderness((Block) p.getLocation().getBlock())) {
-							p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.NotInATown")));
+							p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.NotInATown").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
 						} else {
 							try {
 								if (res.getTown() != null) {
 									if (p.getAllowFlight()) {
 										tflyp.remove(p.getName());
 										p.setFlying(false);
-										p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.FlyDisabled")));
+										p.setAllowFlight(false);
+										p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.FlyDisabled").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
 									} else {
 										tflyp.add(p.getName());
 										p.setAllowFlight(true);
-										p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.FlyEnabled")));
+										p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.FlyEnabled").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
 									}
 								}
 							} catch (Exception e) {
@@ -155,7 +158,7 @@ public class TownyFly extends JavaPlugin implements Listener {
 						}
 		         	}
 	           } else {
-	        	   p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.NoPermission")));
+	        	   p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.NoPermission").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
 	           }
 	
 	     } else {
