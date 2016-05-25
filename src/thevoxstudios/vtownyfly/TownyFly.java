@@ -11,9 +11,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -27,18 +30,20 @@ import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
 
 
-public class TownyFly extends JavaPlugin implements Listener {
+public class TownyFly extends JavaPlugin implements Listener 
+{
 	
 	
-	public File configf = null;
-	public FileConfiguration config = null;
+	File configf = null;
+	FileConfiguration config = null;
 	IEssentials ess = null;
 	Towny towny = null;
 	Resident res = null;
 	ArrayList<String> tflyp = new ArrayList<String>();
 	
 	@Override
-	public void onEnable() {
+	public void onEnable() 
+	{
 		createConfig();
 		towny = (Towny)getServer().getPluginManager().getPlugin("Towny");
 		ess = (IEssentials)getServer().getPluginManager().getPlugin("Essentials");
@@ -47,7 +52,8 @@ public class TownyFly extends JavaPlugin implements Listener {
 	}
 	
 	@Override
-	public void onDisable() {
+	public void onDisable() 
+	{
 		Bukkit.getLogger().info("[TownyFly] Is now disabled......bye!");
 	}
 	
@@ -57,7 +63,8 @@ public class TownyFly extends JavaPlugin implements Listener {
 		config = YamlConfiguration.loadConfiguration(configf);
 		
 		boolean save = false;
-		if (!configf.exists()) {
+		if (!configf.exists()) 
+		{
 			config.set("Messages.Prefix", "&8[&3Towny&8]");
 			config.set("Messages.FlyEnabled", "&aTownyFly is now enabled!");
 			config.set("Messages.FlyDisabled", "&aTownyFly is now disabled!");
@@ -67,12 +74,16 @@ public class TownyFly extends JavaPlugin implements Listener {
 		    config.set("Messages.OutOfTownBoundaries", "&aTeleported to the ground and changed your Towny Fly mode to off. You have just flown outside of the town boundaries! You can only fly inside of the town with /tfly, nub ;p! ");
 			save = true;
 		}
-		if (save) {
-			try {
+		if (save) 
+		{
+			try 
+			{
 				config.save(configf);
 				Bukkit.getLogger().info("[TownyFly] Creating config.yml....");
 				Bukkit.getLogger().info("[TownyFly] Created config.yml!");
-			} catch (IOException e) {
+			} 
+			catch (IOException e) 
+			{
 				Bukkit.getLogger().info("[TownyFly] Failed to create/save config.yml!");
 				Bukkit.getLogger().info("[TownyFly] Caused by: " + e.getMessage());
 			}
@@ -80,7 +91,8 @@ public class TownyFly extends JavaPlugin implements Listener {
 	}
 	
 	@EventHandler
-	public void onQuit(PlayerQuitEvent e) {
+	public void onQuit(PlayerQuitEvent e) 
+	{
 		Player p = e.getPlayer();
 		if (tflyp.contains(p.getName())) {
 			p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
@@ -88,21 +100,58 @@ public class TownyFly extends JavaPlugin implements Listener {
 			tflyp.remove(p.getName());
 		}
 	}
+	
+	@EventHandler 
+	public void onInvClose(InventoryCloseEvent e)
+	{
+		HumanEntity p = e.getPlayer();
+		if (p instanceof Player)
+		{
+			if (((Player) p).isFlying())
+			{
+				((Player) p).setFlying(true);
+				((Player) p).setAllowFlight(true);
+			}
+		}
+	}
+
+	@EventHandler 
+	public void onInvOpen(InventoryOpenEvent e)
+	{
+		HumanEntity p = e.getPlayer();
+		if (p instanceof Player)
+		{
+			if (((Player) p).isFlying())
+			{
+				((Player) p).setFlying(true);
+				((Player) p).setAllowFlight(true);
+			}
+		}
+	}
+	
 	@EventHandler
-	public void onPlotLeave(PlayerChangePlotEvent e) throws NotRegisteredException {
+	public void onPlotLeave(PlayerChangePlotEvent e) throws NotRegisteredException 
+	{
 		Player p = e.getPlayer();
 
-		if (tflyp.contains(p.getName())) {
-	        try {
+		if (tflyp.contains(p.getName())) 
+		{
+	        try 
+	        {
 				res = TownyUniverse.getDataSource().getResident(p.getName());
-			} catch (NotRegisteredException e1) {
+			} 
+	        catch (NotRegisteredException e1) 
+	        {
 				e1.printStackTrace();
 			}
-			try {
+			try 
+			{
 				TownBlock tb = e.getTo().getTownBlock();
-				if (tb != null) {
+				if (tb != null) 
+				{
 					Town townTo = tb.getTown();
-					if (res.getTown() != townTo) {
+					if (res.getTown() != townTo) 
+					{
 							System.out.println("Resident "+ p + " has left their town.");
 						p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
 						p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
@@ -112,7 +161,9 @@ public class TownyFly extends JavaPlugin implements Listener {
 						return;
 					}
 				}
-			} catch (NotRegisteredException tbe) {
+			} 
+			catch (NotRegisteredException tbe) 
+			{
 				System.out.println("Resident has entered the wilderness.");
 				p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
 				p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
@@ -120,49 +171,72 @@ public class TownyFly extends JavaPlugin implements Listener {
 				p.setAllowFlight(false);
 				tflyp.remove(p.getName());
 				return;
-			}			
-			
+			}
 		}
 	}
 	
-	public boolean onCommand(CommandSender s, Command cmd, String label, String[] args) {
+	public boolean onCommand(CommandSender s, Command cmd, String label, String[] args) 
+	{
 		if (cmd.getName().equalsIgnoreCase("tfly"))
 			if (s instanceof Player) {
 				Player p = (Player)s;
-				if (p.hasPermission("vox.towny.fly")) {
-				try {
+				if (p.hasPermission("vox.towny.fly")) 
+				{
+				try 
+				{
 					res = TownyUniverse.getDataSource().getResident(p.getName());
-				} catch (NotRegisteredException e) {
+				} 
+				catch (NotRegisteredException e) 
+				{
 					p.sendMessage(ChatColor.translateAlternateColorCodes('&', "A problem occoured when the server attempted to gather your location data! Please notifiy the System Administrator(s) of this server in order to resolve this problem!"));
 					Bukkit.getLogger().info("Couldn't get " + p.getName() + "'s location!");
 					Bukkit.getLogger().info("Caused by: " + e.getMessage());
 				}
-					if (res.hasTown()) {
-						if (TownyUniverse.isWilderness((Block) p.getLocation().getBlock())) {
+					if (res.hasTown()) 
+					{
+						if (TownyUniverse.isWilderness((Block) p.getLocation().getBlock())) 
+						{
 							p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.NotInATown").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
-						} else {
-							try {
-								if (res.getTown() != null) {
-									if (p.getAllowFlight()) {
+						} 
+						else 
+						{
+							try 
+							{
+								if (res.getTown() != null) 
+								{
+									if (p.getAllowFlight()) 
+									{
 										tflyp.remove(p.getName());
+										p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
 										p.setFlying(false);
+										p.setAllowFlight(false);
+										
 										p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.FlyDisabled").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
-									} else {
+									} 
+									else 
+									{
 										tflyp.add(p.getName());
 										p.setAllowFlight(true);
+										p.setFlying(true);
 										p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.FlyEnabled").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
 									}
 								}
-							} catch (Exception e) {
+							} 
+							catch (Exception e) 
+							{
 								e.printStackTrace();
 							}
 						}
 		         	}
-	           } else {
+	           }
+				else 
+				{
 	        	   p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.NoPermission").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
 	           }
 	
-	     } else {
+	     } 
+			else 
+			{
 	    	 Bukkit.getLogger().info("Only players can do this command, silly Admin!!!");
 	     }
 		return true;
