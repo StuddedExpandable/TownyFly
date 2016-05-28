@@ -11,7 +11,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -97,13 +96,18 @@ public class TownyFly extends JavaPlugin implements Listener
 	@EventHandler
 	public void onDamage(EntityDamageEvent e)
 	{
-		if (e.getEntityType() == EntityType.PLAYER)
+		log("onDamage fired.");
+		if (e.getEntity() instanceof Player)
 		{
 			Player p = (Player)e.getEntity();
 			if (e.getCause() == DamageCause.FALL && (p.hasPermission("vox.towny.fly") && (p.isFlying())))
 			{
 				e.setCancelled(true);
 			}
+			if (p.getLastDamageCause().getCause() == DamageCause.FALL && (p.hasPermission("vox.towny.fly") && (p.isFlying())))
+			{
+				e.setCancelled(true);
+			}			
 		}
 	}
 	
