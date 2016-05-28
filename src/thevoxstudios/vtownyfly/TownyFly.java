@@ -6,18 +6,17 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.earth2me.essentials.IEssentials;
@@ -48,15 +47,19 @@ public class TownyFly extends JavaPlugin implements Listener
 		towny = (Towny)getServer().getPluginManager().getPlugin("Towny");
 		ess = (IEssentials)getServer().getPluginManager().getPlugin("Essentials");
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
-		Bukkit.getLogger().info("[TownyFly] Is now enabled!");
+		log("Is now enabled!");
 	}
 	
 	@Override
 	public void onDisable() 
 	{
-		Bukkit.getLogger().info("[TownyFly] Is now disabled......bye!");
+		log("Is now disabled......bye!");
 	}
 	
+	public void log(String string)
+	{
+		log("" + string);
+	}
 	
 	void createConfig() {
 	    configf = new File(getDataFolder() + File.separator + "config.yml");
@@ -65,13 +68,13 @@ public class TownyFly extends JavaPlugin implements Listener
 		boolean save = false;
 		if (!configf.exists()) 
 		{
-			config.set("Messages.Prefix", "&8[&3Towny&8]");
-			config.set("Messages.FlyEnabled", "&aTownyFly is now enabled!");
-			config.set("Messages.FlyDisabled", "&aTownyFly is now disabled!");
-			config.set("Messages.NotInATown", "&cYou must be in your joined Town in order to use this command!");
-			config.set("Messages.NotInJoinedTown", "&cYou are not in your joined Town! If you want to use this command you must be in the town you have joined.");
-			config.set("Messages.NoPermission", "&cYou do not have permission to execute this command! &cWant to be able to execute this command? Become a registered &8[&aMember&]&a @ &dwww.thevoxmc.net &aand gain perks like this one!");
-		    config.set("Messages.OutOfTownBoundaries", "&aTeleported to the ground and changed your Towny Fly mode to off. You have just flown outside of the town boundaries! You can only fly inside of the town with /tfly, nub ;p! ");
+			config.set("Messages.Prefix", "&aTownyFly &8»");
+			config.set("Messages.FlyEnabled", "<prefix> &aTownyFly is now enabled!");
+			config.set("Messages.FlyDisabled", "<prefix> &aTownyFly is now disabled!");
+			config.set("Messages.NotInATown", "<prefix> &cYou must be in your joined Town in order to use this command!");
+			config.set("Messages.NotInJoinedTown", "<prefix> &cYou are not in your joined Town! If you want to use this command you must be in the town you have joined.");
+			config.set("Messages.NoPermission", "<prefix> &cYou do not have permission to execute this command! &cWant to be able to execute this command? Become a registered &8[&aMember&]&a @ &dwww.thevoxmc.net &aand gain perks like this one!");
+		    config.set("Messages.OutOfTownBoundaries", "<prefix> &aTeleported to the ground and changed your Towny Fly mode to off. You have just flown outside of the town boundaries! You can only fly inside of the town with /tfly, nub ;p! ");
 			save = true;
 		}
 		if (save) 
@@ -79,52 +82,34 @@ public class TownyFly extends JavaPlugin implements Listener
 			try 
 			{
 				config.save(configf);
-				Bukkit.getLogger().info("[TownyFly] Creating config.yml....");
-				Bukkit.getLogger().info("[TownyFly] Created config.yml!");
+				log("Creating config.yml....");
+				log("Created config.yml!");
 			} 
 			catch (IOException e) 
 			{
-				Bukkit.getLogger().info("[TownyFly] Failed to create/save config.yml!");
-				Bukkit.getLogger().info("[TownyFly] Caused by: " + e.getMessage());
+				log("Failed to create/save config.yml!");
+				log("Caused by: " + e.getMessage());
 			}
 		}	
 	}
 	
 	@EventHandler
-	public void onQuit(PlayerQuitEvent e) 
+	public void onDamage(EntityDamageEvent e)
 	{
-		Player p = e.getPlayer();
-		if (tflyp.contains(p.getName())) {
-			p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
-			p.setFlying(false);
-			tflyp.remove(p.getName());
-		}
-	}
-	
-	@EventHandler 
-	public void onInvClose(InventoryCloseEvent e)
-	{
-		HumanEntity p = e.getPlayer();
-		if (p instanceof Player)
+		Player p = (Player) e.getEntity();
+		if (p.hasPermission("vox.towny.fly") && p.isFlying() && p.getLocation().subtract(0, 1, 0).getBlock().getType() == Material.AIR)
 		{
-			if (((Player) p).isFlying())
+			if (e.getEntity() instanceof Player)
 			{
-				((Player) p).setFlying(true);
-				((Player) p).setAllowFlight(true);
-			}
-		}
-	}
-
-	@EventHandler 
-	public void onInvOpen(InventoryOpenEvent e)
-	{
-		HumanEntity p = e.getPlayer();
-		if (p instanceof Player)
-		{
-			if (((Player) p).isFlying())
-			{
-				((Player) p).setFlying(true);
-				((Player) p).setAllowFlight(true);
+				if (e.getCause() == DamageCause.FALL)
+				{
+					e.setCancelled(true);
+				}
+				
+				if (p.getLastDamageCause().getCause() == DamageCause.FALL)
+				{
+					e.setCancelled(true);
+				}
 			}
 		}
 	}
@@ -152,8 +137,7 @@ public class TownyFly extends JavaPlugin implements Listener
 					Town townTo = tb.getTown();
 					if (res.getTown() != townTo) 
 					{
-							System.out.println("Resident "+ p + " has left their town.");
-						p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
+							log("Resident "+ p + " has left their town.");
 						p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
 						p.setFlying(false);
 						p.setAllowFlight(false);
@@ -164,8 +148,7 @@ public class TownyFly extends JavaPlugin implements Listener
 			} 
 			catch (NotRegisteredException tbe) 
 			{
-				System.out.println("Resident has entered the wilderness.");
-				p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
+				log("Resident has entered the wilderness.");
 				p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.OutOfTownBoundaries").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
 				p.setFlying(false);
 				p.setAllowFlight(false);
@@ -207,7 +190,6 @@ public class TownyFly extends JavaPlugin implements Listener
 									if (p.getAllowFlight()) 
 									{
 										tflyp.remove(p.getName());
-										p.teleport(p.getPlayer().getWorld().getHighestBlockAt(p.getPlayer().getLocation().getBlockX(), p.getPlayer().getLocation().getBlockZ()).getLocation());
 										p.setFlying(false);
 										p.setAllowFlight(false);
 										
@@ -237,7 +219,7 @@ public class TownyFly extends JavaPlugin implements Listener
 	     } 
 			else 
 			{
-	    	 Bukkit.getLogger().info("Only players can do this command, silly Admin!!!");
+	    	 log("Only players can do this command, silly Admin!!!");
 	     }
 		return true;
 	}
