@@ -3,6 +3,7 @@ main: thevoxstudios.vtownyfly.TownyFly
 description: Allowing Members to fly in their joined town.
 author: TheMasteredPanda
 version: '1.0'
+depend: [Towny]
 commands:
   tfly:
     description: Usage for the command

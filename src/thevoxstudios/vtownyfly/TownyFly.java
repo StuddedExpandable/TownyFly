@@ -6,12 +6,12 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -58,7 +58,7 @@ public class TownyFly extends JavaPlugin implements Listener
 	
 	public void log(String string)
 	{
-		log("" + string);
+		System.out.println("[TownyFly] " + string);
 	}
 	
 	void createConfig() {
@@ -93,23 +93,16 @@ public class TownyFly extends JavaPlugin implements Listener
 		}	
 	}
 	
+
 	@EventHandler
 	public void onDamage(EntityDamageEvent e)
 	{
-		Player p = (Player) e.getEntity();
-		if (p.hasPermission("vox.towny.fly") && p.isFlying() && p.getLocation().subtract(0, 1, 0).getBlock().getType() == Material.AIR)
+		if (e.getEntityType() == EntityType.PLAYER)
 		{
-			if (e.getEntity() instanceof Player)
+			Player p = (Player)e.getEntity();
+			if (e.getCause() == DamageCause.FALL && (p.hasPermission("vox.towny.fly") && (p.isFlying())))
 			{
-				if (e.getCause() == DamageCause.FALL)
-				{
-					e.setCancelled(true);
-				}
-				
-				if (p.getLastDamageCause().getCause() == DamageCause.FALL)
-				{
-					e.setCancelled(true);
-				}
+				e.setCancelled(true);
 			}
 		}
 	}
