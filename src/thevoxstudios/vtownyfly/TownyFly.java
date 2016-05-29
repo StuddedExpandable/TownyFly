@@ -21,7 +21,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.earth2me.essentials.IEssentials;
 import com.palmergames.bukkit.towny.Towny;
 import com.palmergames.bukkit.towny.event.PlayerChangePlotEvent;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
@@ -36,7 +35,6 @@ public class TownyFly extends JavaPlugin implements Listener
 	
 	File configf = null;
 	FileConfiguration config = null;
-	IEssentials ess = null;
 	Towny towny = null;
 	Resident res = null;
 	ArrayList<String> tflyp = new ArrayList<String>();
@@ -47,7 +45,6 @@ public class TownyFly extends JavaPlugin implements Listener
 	{
 		createConfig();
 		towny = (Towny)getServer().getPluginManager().getPlugin("Towny");
-		ess = (IEssentials)getServer().getPluginManager().getPlugin("Essentials");
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		log("Is now enabled!");
 	}
@@ -103,8 +100,7 @@ public class TownyFly extends JavaPlugin implements Listener
 		Player p = (Player) e.getPlayer();
 		if (tflyp.contains(p.getPlayer()))
 		{
-			p.setFlying(true);
-			p.setAllowFlight(true);
+			log("tflyp contains" + tflyp);
 		}
 	}
 
@@ -112,10 +108,9 @@ public class TownyFly extends JavaPlugin implements Listener
 	public void onInventoryClose(InventoryCloseEvent e)
 	{
 		Player p = (Player) e.getPlayer();
-		if (tflyp.contains(p.getPlayer()))
+		if (tflyp.contains(p.getPlayer()));
 		{
-			p.setFlying(true);
-			p.setAllowFlight(true);
+			log("tflyp contains" + tflyp);
 		}
 	}
 	
@@ -239,7 +234,7 @@ public class TownyFly extends JavaPlugin implements Listener
 									{
 										tflyp.remove(p.getName());
 										p.setAllowFlight(false);
-										p.setFlying(true);
+										p.setFlying(false);
 										p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.FlyDisabled").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
 										if (Material.AIR == p.getLocation().subtract(0, 1, 0).getBlock().getType())
 										{
