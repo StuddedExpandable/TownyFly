@@ -101,7 +101,7 @@ public class TownyFly extends JavaPlugin implements Listener
 	public void onInventoryOpen(InventoryOpenEvent e)
 	{
 		Player p = (Player) e.getPlayer();
-		if (tflyp.contains(p.getName()))
+		if (tflyp.contains(p.getPlayer()))
 		{
 			p.setFlying(true);
 			p.setAllowFlight(true);
@@ -112,7 +112,7 @@ public class TownyFly extends JavaPlugin implements Listener
 	public void onInventoryClose(InventoryCloseEvent e)
 	{
 		Player p = (Player) e.getPlayer();
-		if (tflyp.contains(p.getName()))
+		if (tflyp.contains(p.getPlayer()))
 		{
 			p.setFlying(true);
 			p.setAllowFlight(true);
