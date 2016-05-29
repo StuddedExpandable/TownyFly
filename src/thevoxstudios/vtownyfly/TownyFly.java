@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -27,7 +28,6 @@ import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
 
-
 public class TownyFly extends JavaPlugin implements Listener 
 {
 	
@@ -38,6 +38,7 @@ public class TownyFly extends JavaPlugin implements Listener
 	Towny towny = null;
 	Resident res = null;
 	ArrayList<String> tflyp = new ArrayList<String>();
+	ArrayList<String> nofall = new ArrayList<String>();
 	
 	@Override
 	public void onEnable() 
@@ -100,23 +101,29 @@ public class TownyFly extends JavaPlugin implements Listener
 		log("onDamage fired.");
 		if (e.getEntity() instanceof Player)
 		{
-			Player p = (Player)e.getEntity();
-			if (e.getCause() == DamageCause.FALL && (p.hasPermission("vox.towny.fly")))
+			Player p = (Player) e.getEntity();
+			if (nofall.contains(p.getName()))
 			{
-				log("");
-				e.setCancelled(true);
-			}
-			else
-			{
-				log("Damage not fall damage/Conditions not met");
-			}
-			if (p.getLastDamageCause().getCause() == DamageCause.FALL && (p.hasPermission("vox.towny.fly")))
-			{
-				e.setCancelled(true);
-			}		
-			else
-			{
-				log("Damage not fall damage/Conditions not met x2");
+				if (e.getCause() == DamageCause.FALL && (p.hasPermission("vox.towny.fly")))
+				{
+					e.setCancelled(true);
+					nofall.remove(p.getName());
+					log("Passed conditions sucessfully, removed from nofall array");
+				}
+				else
+				{
+					log("Damage not fall damage/Conditions not met");
+				}
+				if (p.getLastDamageCause().getCause() == DamageCause.FALL && (p.hasPermission("vox.towny.fly")))
+				{
+					e.setCancelled(true);
+					nofall.remove(p.getName());
+					log("Passed conditions sucessfully, removed from nofall array");
+				}		
+				else
+				{
+					log("Damage not fall damage/Conditions not met x2");
+				}
 			}
 		}
 	}
@@ -149,6 +156,11 @@ public class TownyFly extends JavaPlugin implements Listener
 						p.setAllowFlight(false);
 						p.setFlying(false);
 						tflyp.remove(p.getName());
+						if (Material.AIR == p.getLocation().subtract(0, 1, 0).getBlock().getType())
+						{
+							nofall.add(p.getName());
+							log(p.getName() + " has been added to the nofall arraylist");
+						}
 						return;
 					}
 				}
@@ -160,6 +172,11 @@ public class TownyFly extends JavaPlugin implements Listener
 				p.setAllowFlight(false);
 				p.setFlying(false);
 				tflyp.remove(p.getName());
+				if (Material.AIR == p.getLocation().subtract(0, 1, 0).getBlock().getType())
+				{
+					nofall.add(p.getName());
+					log(p.getName() + " has been added to the nofall arraylist");
+				}
 				return;
 			}
 		}
@@ -179,8 +196,8 @@ public class TownyFly extends JavaPlugin implements Listener
 				catch (NotRegisteredException e) 
 				{
 					p.sendMessage(ChatColor.translateAlternateColorCodes('&', "A problem occoured when the server attempted to gather your location data! Please notifiy the System Administrator(s) of this server in order to resolve this problem!"));
-					Bukkit.getLogger().info("Couldn't get " + p.getName() + "'s location!");
-					Bukkit.getLogger().info("Caused by: " + e.getMessage());
+					log("Couldn't get " + p.getName() + "'s location!");
+					log("Caused by: " + e.getMessage());
 				}
 					if (res.hasTown()) 
 					{
@@ -200,6 +217,11 @@ public class TownyFly extends JavaPlugin implements Listener
 										p.setAllowFlight(false);
 										p.setFlying(true);
 										p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Messages.FlyDisabled").replace("<prefix>", getConfig().getString("Messages.Prefix"))));
+										if (Material.AIR == p.getLocation().subtract(0, 1, 0).getBlock().getType())
+										{
+											nofall.add(p.getName());
+											log(p.getName() + " has been added to the nofall arraylist");
+										}
 									} 
 									else 
 									{
