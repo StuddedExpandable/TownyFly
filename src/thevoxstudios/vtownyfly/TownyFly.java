@@ -17,6 +17,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.earth2me.essentials.IEssentials;
@@ -95,6 +97,28 @@ public class TownyFly extends JavaPlugin implements Listener
 	}
 	
 
+	@EventHandler
+	public void onInventoryOpen(InventoryOpenEvent e)
+	{
+		Player p = (Player) e.getPlayer();
+		if (tflyp.contains(p.getName()))
+		{
+			p.setFlying(true);
+			p.setAllowFlight(true);
+		}
+	}
+
+	@EventHandler
+	public void onInventoryClose(InventoryCloseEvent e)
+	{
+		Player p = (Player) e.getPlayer();
+		if (tflyp.contains(p.getName()))
+		{
+			p.setFlying(true);
+			p.setAllowFlight(true);
+		}
+	}
+	
 	@EventHandler
 	public void onDamage(EntityDamageEvent e)
 	{
