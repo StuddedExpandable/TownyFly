@@ -17,6 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -98,9 +99,16 @@ public class TownyFly extends JavaPlugin implements Listener
 	public void onInventoryOpen(InventoryOpenEvent e)
 	{
 		Player p = (Player) e.getPlayer();
-		if (tflyp.contains(p.getPlayer()))
+		if (tflyp.contains(p.getName()))
 		{
-			log("tflyp contains" + tflyp);
+			if (!p.getAllowFlight() != false)
+			{
+				p.setAllowFlight(true);
+				p.setFlying(true);
+			}
+			e.setCancelled(true);
+			log("tflyp contains " + tflyp);
+			return;
 		}
 	}
 
@@ -108,11 +116,34 @@ public class TownyFly extends JavaPlugin implements Listener
 	public void onInventoryClose(InventoryCloseEvent e)
 	{
 		Player p = (Player) e.getPlayer();
-		if (tflyp.contains(p.getPlayer()));
+		if (tflyp.contains(p.getName()));
 		{
-			log("tflyp contains" + tflyp);
+			if (!p.getAllowFlight() != false)
+			{
+				p.setAllowFlight(true);
+				p.setFlying(true);
+			}
+			log("tflyp contains " + tflyp + " x2");
+			return;
 		}
 	}
+
+	@EventHandler
+	public void onInventoryClick(InventoryClickEvent e)
+	{
+		Player p = (Player) e.getViewers();
+		if (tflyp.contains(p.getName()));
+		{
+			if (!p.getAllowFlight() != false)
+			{
+				p.setAllowFlight(true);
+				p.setFlying(true);
+			}
+			log("tflyp contains " + tflyp + " x2");
+			return;
+		}
+	}
+	
 	
 	@EventHandler
 	public void onDamage(EntityDamageEvent e)
