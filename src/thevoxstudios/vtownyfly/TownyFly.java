@@ -101,7 +101,7 @@ public class TownyFly extends JavaPlugin implements Listener
 		Player p = (Player) e.getPlayer();
 		if (tflyp.contains(p.getName()))
 		{
-			if (!p.getAllowFlight() != false)
+			if (!p.getAllowFlight())
 			{
 				p.setAllowFlight(true);
 				p.setFlying(true);
@@ -118,7 +118,7 @@ public class TownyFly extends JavaPlugin implements Listener
 		Player p = (Player) e.getPlayer();
 		if (tflyp.contains(p.getName()));
 		{
-			if (!p.getAllowFlight() != false)
+			if (!p.getAllowFlight())
 			{
 				p.setAllowFlight(true);
 				p.setFlying(true);
@@ -134,7 +134,7 @@ public class TownyFly extends JavaPlugin implements Listener
 		Player p = (Player) e.getViewers();
 		if (tflyp.contains(p.getName()));
 		{
-			if (!p.getAllowFlight() != false)
+			if (!p.getAllowFlight())
 			{
 				p.setAllowFlight(true);
 				p.setFlying(true);
